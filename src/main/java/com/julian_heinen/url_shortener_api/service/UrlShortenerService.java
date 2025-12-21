@@ -1,0 +1,37 @@
+package com.julian_heinen.url_shortener_api.service;
+
+import org.springframework.stereotype.Service;
+
+import com.julian_heinen.url_shortener_api.model.UrlMapping;
+import com.julian_heinen.url_shortener_api.repository.UrlMappingRepository;
+import com.julian_heinen.url_shortener_api.util.Base62Decoder;
+import com.julian_heinen.url_shortener_api.util.Base62Encoder;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class UrlShortenerService {
+
+    private final UrlMappingRepository repository;
+
+    public String shortenUrl(String longUrl) {
+        if (longUrl == null || longUrl.isEmpty()) {
+            throw new IllegalArgumentException("Url cannot be null or empty");
+        }
+
+        UrlMapping urlMapping = repository.save(new UrlMapping(longUrl));
+        String shortCode = Base62Encoder.encode(urlMapping.getId());
+
+        // Für lokalen Test: localhost zurückgeben
+        return "http://localhost:8080/" + shortCode;
+    }
+
+    public String resolveUrl(String shortUrl) {
+        long id = Base62Decoder.decode(shortUrl);
+
+        return repository.findById(id)
+                .map(UrlMapping::getOriginalUrl)
+                .orElseThrow(() -> new IllegalArgumentException("ShortUrl not found: " + shortUrl));
+    }
+}

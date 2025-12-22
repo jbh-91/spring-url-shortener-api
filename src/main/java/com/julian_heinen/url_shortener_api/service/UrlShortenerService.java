@@ -1,5 +1,6 @@
 package com.julian_heinen.url_shortener_api.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.julian_heinen.url_shortener_api.model.UrlMapping;
@@ -15,6 +16,9 @@ public class UrlShortenerService {
 
     private final UrlMappingRepository repository;
 
+    @Value("${app.baseurl}")
+    private String baseUrl;
+
     public String shortenUrl(String longUrl) {
         if (longUrl == null || longUrl.isEmpty()) {
             throw new IllegalArgumentException("Url cannot be null or empty");
@@ -24,7 +28,7 @@ public class UrlShortenerService {
         String shortCode = Base62Encoder.encode(urlMapping.getId());
 
         // Für lokalen Test: localhost zurückgeben
-        return "http://localhost:8080/" + shortCode;
+        return baseUrl + shortCode;
     }
 
     public String resolveUrl(String shortUrl) {

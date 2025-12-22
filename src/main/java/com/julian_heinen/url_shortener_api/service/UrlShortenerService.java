@@ -27,7 +27,6 @@ public class UrlShortenerService {
         UrlMapping urlMapping = repository.save(new UrlMapping(longUrl));
         String shortCode = Base62Encoder.encode(urlMapping.getId());
 
-        // Für lokalen Test: localhost zurückgeben
         return baseUrl + shortCode;
     }
 

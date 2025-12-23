@@ -3,6 +3,7 @@ package com.julian_heinen.url_shortener_api.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.julian_heinen.url_shortener_api.exception.ShortUrlNotFoundException;
 import com.julian_heinen.url_shortener_api.model.UrlMapping;
 import com.julian_heinen.url_shortener_api.repository.UrlMappingRepository;
 import com.julian_heinen.url_shortener_api.util.Base62Decoder;
@@ -35,6 +36,6 @@ public class UrlShortenerService {
 
         return repository.findById(id)
                 .map(UrlMapping::getOriginalUrl)
-                .orElseThrow(() -> new IllegalArgumentException("ShortUrl not found: " + shortUrl));
+                .orElseThrow(() -> new ShortUrlNotFoundException("ShortUrl not found: " + shortUrl));
     }
 }

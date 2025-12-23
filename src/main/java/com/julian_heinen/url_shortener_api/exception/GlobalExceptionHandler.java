@@ -16,4 +16,11 @@ public class GlobalExceptionHandler {
                 .header(HttpHeaders.CONTENT_TYPE, "text/plain")
                 .body("Invalid URL provided: " + ex.getMessage());
     }
+
+    @ExceptionHandler(ShortUrlNotFoundException.class)
+    public ResponseEntity<String> handleShortUrlNotFoundException(ShortUrlNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .header(HttpHeaders.CONTENT_TYPE, "text/plain")
+                .body("Short URL not found: " + ex.getMessage());
+    }
 }

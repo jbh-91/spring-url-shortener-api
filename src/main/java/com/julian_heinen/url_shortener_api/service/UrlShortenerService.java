@@ -20,6 +20,9 @@ public class UrlShortenerService {
     @Value("${app.baseurl}")
     private String baseUrl;
 
+    @Value("${server.port}")
+    private String serverPort;
+
     public String shortenUrl(String longUrl) {
         if (longUrl == null || longUrl.isEmpty()) {
             throw new IllegalArgumentException("Url cannot be null or empty");
@@ -28,7 +31,7 @@ public class UrlShortenerService {
         UrlMapping urlMapping = repository.save(new UrlMapping(longUrl));
         String shortCode = Base62Encoder.encode(urlMapping.getId());
 
-        return baseUrl + shortCode;
+        return baseUrl + ":" + serverPort + "/" + shortCode;
     }
 
     public String resolveUrl(String shortUrl) {

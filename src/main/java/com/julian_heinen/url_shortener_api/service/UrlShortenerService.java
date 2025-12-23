@@ -36,6 +36,6 @@ public class UrlShortenerService {
 
         return repository.findById(id)
                 .map(UrlMapping::getOriginalUrl)
-                .orElseThrow(() -> new ShortUrlNotFoundException("ShortUrl not found: " + shortUrl));
+                .orElseThrow(() -> new ShortUrlNotFoundException(shortUrl));
     }
 }

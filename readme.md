@@ -46,22 +46,27 @@ Die Datenbank-Datei wird automatisch im Ordner `./data/` angelegt.
 Erstellt einen neuen Short-Link für eine lange URL.
 
 * **URL:** `POST /`
-* **Content-Type:** `text/plain` (oder Raw Body String)
+* **Content-Type:** `application/json` 
 * **Body:** Die zu kürzende URL (muss mit `http://` oder `https://` beginnen).
 
 **Beispiel (Curl):**
 ```bash
-curl -X POST -d "https://www.github.com" http://localhost:8080/
+curl -X POST -H "Content-Type: application/json" -d '{"url": "https://www.github.com"}' http://localhost:8080/
 ```
 
 **Beispiel (PowerShell):**
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri "http://localhost:8080/" -Body "https://www.github.com" -ContentType "text/plain"
+Invoke-RestMethod -Method Post -Uri "http://localhost:8080/" -Body '{"url": "https://www.github.com"}' -ContentType "application/json"
 ```
 
 **Antwort (201 Created):**
-`http://localhost:8080/aX`
+```powershell
+{
+  "shortUrl": "http://localhost:8080/aX",
+  "originalUrl": "https://www.github.com"
+}
+```
 
 ---
 

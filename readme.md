@@ -32,9 +32,9 @@ Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfigu
     ```bash
     git clone "https://github.com/jbh-91/spring-url-shortener-api"
     ```
-2.  **Bauen und Starten (via Maven):**
+2.  **Bauen und Starten (via Maven-Wrapper):**
     ```bash
-    mvn spring-boot:run
+    .\mvnw spring-boot:run
     ```
 
 Nach dem Start ist die API unter `http://localhost:8080` erreichbar.

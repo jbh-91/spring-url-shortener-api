@@ -30,11 +30,19 @@ public class UrlShortenerService {
         return baseUrl + ":" + serverPort + "/" + shortCode;
     }
 
-    public String resolveUrl(String shortUrl) {
-        long id = Base62Decoder.decode(shortUrl);
+    public String resolveUrl(String shortCode) {
+        UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+
+        return urlMapping.getOriginalUrl();
+    }
+
+    /*
+     * Hilfsmethode
+     */
+    private UrlMapping getUrlMappingByShortCode(String shortCode) {
+        long id = Base62Decoder.decode(shortCode);
 
         return repository.findById(id)
-                .map(UrlMapping::getOriginalUrl)
-                .orElseThrow(() -> new ShortUrlNotFoundException(shortUrl));
+                .orElseThrow(() -> new ShortUrlNotFoundException(shortCode));
     }
 }

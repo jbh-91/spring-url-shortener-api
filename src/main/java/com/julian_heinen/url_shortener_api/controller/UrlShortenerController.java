@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.julian_heinen.url_shortener_api.dto.CreateUrlRequest;
 import com.julian_heinen.url_shortener_api.dto.UrlResponse;
+import com.julian_heinen.url_shortener_api.dto.UrlStatsResponse;
 import com.julian_heinen.url_shortener_api.service.UrlShortenerService;
 
 import jakarta.validation.Valid;
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping // not specifying a path here to allow easy configuration in the future
+@RequestMapping("/")
 @Validated
 public class UrlShortenerController {
 
@@ -45,5 +46,17 @@ public class UrlShortenerController {
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
                 .build();
+    }
+
+    @GetMapping("/stats/{shortCode}")
+    public ResponseEntity<UrlStatsResponse> getStatsById(@PathVariable String shortCode) {
+        int accessCount = service.getAccessCount(shortCode);
+        String originalUrl = service.getOriginalUrl(shortCode);
+
+        UrlStatsResponse response = new UrlStatsResponse(originalUrl, accessCount);
+
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 }

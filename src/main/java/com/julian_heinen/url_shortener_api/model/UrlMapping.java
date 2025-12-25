@@ -23,4 +23,6 @@ public class UrlMapping {
     @Lob
     @NonNull // Damit @RequiredArgsConstructor es nutzt
     private String originalUrl;
+
+    private int accessCount = 0;
 }

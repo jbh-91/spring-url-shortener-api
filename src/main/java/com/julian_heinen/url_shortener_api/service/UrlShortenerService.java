@@ -33,7 +33,21 @@ public class UrlShortenerService {
     public String resolveUrl(String shortCode) {
         UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
 
+        urlMapping.setAccessCount(urlMapping.getAccessCount() + 1);
+        repository.save(urlMapping);
+
         return urlMapping.getOriginalUrl();
+    }
+
+    public String getOriginalUrl(String shortCode) {
+        UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+
+        return urlMapping.getOriginalUrl();
+    }
+
+    public int getAccessCount(String shortCode) {
+        UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+        return urlMapping.getAccessCount();
     }
 
     /*

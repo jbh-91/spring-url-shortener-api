@@ -1,5 +1,7 @@
 package com.julian_heinen.url_shortener_api.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class UrlShortenerService {
         UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
 
         urlMapping.setAccessCount(urlMapping.getAccessCount() + 1);
+        urlMapping.setLastAccessed(LocalDateTime.now());
         repository.save(urlMapping);
 
         return urlMapping.getOriginalUrl();
@@ -48,6 +51,11 @@ public class UrlShortenerService {
     public int getAccessCount(String shortCode) {
         UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
         return urlMapping.getAccessCount();
+    }
+
+    public LocalDateTime getLastAccessed(String shortCode) {
+        UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+        return urlMapping.getLastAccessed();
     }
 
     /*

@@ -1,7 +1,9 @@
 package com.julian_heinen.url_shortener_api.controller;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -52,8 +54,9 @@ public class UrlShortenerController {
     public ResponseEntity<UrlStatsResponse> getStatsById(@PathVariable String shortCode) {
         int accessCount = service.getAccessCount(shortCode);
         String originalUrl = service.getOriginalUrl(shortCode);
+        LocalDateTime lastAccessed = service.getLastAccessed(shortCode);
 
-        UrlStatsResponse response = new UrlStatsResponse(originalUrl, accessCount);
+        UrlStatsResponse response = new UrlStatsResponse(originalUrl, accessCount, lastAccessed);
 
         return ResponseEntity
                 .ok()

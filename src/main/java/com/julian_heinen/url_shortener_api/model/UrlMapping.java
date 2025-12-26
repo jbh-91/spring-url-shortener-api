@@ -1,5 +1,7 @@
 package com.julian_heinen.url_shortener_api.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,4 +27,6 @@ public class UrlMapping {
     private String originalUrl;
 
     private int accessCount = 0;
+
+    private LocalDateTime lastAccessed;
 }

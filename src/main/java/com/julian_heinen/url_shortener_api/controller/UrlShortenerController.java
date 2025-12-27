@@ -3,10 +3,10 @@ package com.julian_heinen.url_shortener_api.controller;
 import java.net.URI;
 import java.time.LocalDateTime;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,5 +61,12 @@ public class UrlShortenerController {
         return ResponseEntity
                 .ok()
                 .body(response);
+    }
+
+    @DeleteMapping("/{shortCode}")
+    public ResponseEntity<Void> deleteUrlById(@PathVariable String shortCode) {
+        service.deleteUrl(shortCode);
+
+        return ResponseEntity.noContent().build();
     }
 }

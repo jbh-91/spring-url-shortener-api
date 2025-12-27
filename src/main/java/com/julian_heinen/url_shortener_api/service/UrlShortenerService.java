@@ -42,6 +42,11 @@ public class UrlShortenerService {
         return urlMapping.getOriginalUrl();
     }
 
+    public void deleteUrl(String shortCode) {
+        UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+        repository.delete(urlMapping);
+    }
+
     public String getOriginalUrl(String shortCode) {
         UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
 

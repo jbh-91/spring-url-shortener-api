@@ -7,13 +7,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class UrlMapping {
 
     @Id
@@ -21,10 +24,18 @@ public class UrlMapping {
     private Long id;
 
     @Lob
-    @NonNull // Damit @RequiredArgsConstructor es nutzt
+    @NonNull // Damit @RequiredArgsConstructor
     private String originalUrl;
 
     private int accessCount = 0;
 
     private LocalDateTime lastAccessed;
+
+    private LocalDateTime expiresAt;
+
+    @Builder
+    public UrlMapping(@NonNull String originalUrl, LocalDateTime expiresAt) {
+        this.originalUrl = originalUrl;
+        this.expiresAt = expiresAt;
+    }
 }

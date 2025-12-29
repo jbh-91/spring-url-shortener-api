@@ -1,7 +1,6 @@
 package com.julian_heinen.url_shortener_api.controller;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,18 +22,21 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/")
 @Validated
+@RequiredArgsConstructor
 public class UrlShortenerController {
 
     private final UrlShortenerService service;
 
     @PostMapping
     public ResponseEntity<UrlResponse> shortenUrl(@RequestBody @Valid CreateUrlRequest request) {
-        String shortUrl = service.shortenUrl(request.url());
+        String originalUrl = request.url();
+        Integer hoursTTL = request.hoursTTL();
 
-        UrlResponse response = new UrlResponse(shortUrl, request.url());
+        String shortUrl = service.shortenUrl(originalUrl, hoursTTL);
+
+        UrlResponse response = new UrlResponse(shortUrl, originalUrl);
 
         return ResponseEntity
                 .created(URI.create(shortUrl))
@@ -52,11 +54,7 @@ public class UrlShortenerController {
 
     @GetMapping("/stats/{shortCode}")
     public ResponseEntity<UrlStatsResponse> getStatsById(@PathVariable String shortCode) {
-        int accessCount = service.getAccessCount(shortCode);
-        String originalUrl = service.getOriginalUrl(shortCode);
-        LocalDateTime lastAccessed = service.getLastAccessed(shortCode);
-
-        UrlStatsResponse response = new UrlStatsResponse(originalUrl, accessCount, lastAccessed);
+        UrlStatsResponse response = service.getUrlStats(shortCode);
 
         return ResponseEntity
                 .ok()

@@ -25,8 +25,10 @@ public class UrlShortenerService {
 
     private final int defaultHoursTTL;
 
-    public UrlShortenerService(UrlMappingRepository repository, @Value("${app.baseurl}") String baseUrl,
-            @Value("${server.port}") String serverPort, @Value("${app.default-ttl-hours:0}") int defaultHoursTTL) {
+    public UrlShortenerService(UrlMappingRepository repository,
+            @Value("${app.baseurl}") String baseUrl,
+            @Value("${server.port}") String serverPort,
+            @Value("${app.default-ttl-hours:0}") int defaultHoursTTL) {
         this.repository = repository;
         this.baseUrl = baseUrl;
         this.serverPort = serverPort;

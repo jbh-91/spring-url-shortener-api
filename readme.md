@@ -26,6 +26,7 @@ Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfigu
 | `spring.jpa.hibernate.ddl-auto` | `update` | Erstellt das Datenbankschema bei Änderungen automatisch neu, behält die Daten aber bei. |
 | `app.baseurl` | `http://localhost` | Die Basis-URL, die dem Short-Code vorangestellt wird. _(z.B. http://mydomain.de)_ |
 | `app.defaultHoursTTL` | `0` | Die Default TTL für die Erstellung der Short-URLs in Stunden. _(0=unendlich)_ |
+| `app.cleanup.cron` | `0 0 3 * * *` | Cron-Ausdruck für den automatischen Bereinigungs-Job abgelaufener URLs. (_Standard: Täglich 03:00 Uhr)_ |
 
 ## 🛠️ Installation & Start
 
@@ -106,6 +107,11 @@ Die API liefert saubere HTTP-Statuscodes zurück:
 * **400 Bad Request:** Ungültige URL oder Formatfehler (z.B. bei "Spam" statt einer gültigen URL).
 * **404 Not Found:** Der Short-Code existiert nicht.
 * **410 Gone:** Der Short-Code existiert, ist aber abgelaufen (TTL expired).
+
+## 🧹 Automatische Bereinigung
+Damit die Datenbank nicht unbegrenzt mit "toten" Einträgen wächst, verfügt die Anwendung über einen integrierten Cleanup-Job.
+- Dieser läuft im Hintergrund und löscht physisch alle URLs aus der Datenbank, deren Haltbarkeitsdatum (`expiresAt`) überschritten ist.
+- Der Zeitplan ist über die Property `app.cleanup.cron` konfigurierbar. _(Standard: Täglich um 03:00 Uhr nachts)_
 
 ## 🗄️ Datenbank-Zugriff (H2 Console)
 

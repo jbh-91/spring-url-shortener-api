@@ -31,15 +31,12 @@ public class UrlShortenerController {
 
     @PostMapping
     public ResponseEntity<UrlResponse> shortenUrl(@RequestBody @Valid CreateUrlRequest request) {
-        String originalUrl = request.url();
-        Integer hoursTTL = request.hoursTTL();
-
-        String shortUrl = service.shortenUrl(originalUrl, hoursTTL);
-
-        UrlResponse response = new UrlResponse(shortUrl, originalUrl);
+        UrlResponse response = service.getShortUrl(
+                request.url(),
+                request.hoursTTL());
 
         return ResponseEntity
-                .created(URI.create(shortUrl))
+                .created(URI.create(response.shortUrl()))
                 .body(response);
     }
 
@@ -47,7 +44,8 @@ public class UrlShortenerController {
     public ResponseEntity<Void> getUrlById(@PathVariable String shortCode) {
         String originalUrl = service.resolveUrl(shortCode);
 
-        return ResponseEntity.status(HttpStatus.FOUND)
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
                 .build();
     }
@@ -65,6 +63,8 @@ public class UrlShortenerController {
     public ResponseEntity<Void> deleteUrlById(@PathVariable String shortCode) {
         service.deleteUrl(shortCode);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

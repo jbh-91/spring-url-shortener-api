@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.julian_heinen.url_shortener_api.dto.UrlResponse;
 import com.julian_heinen.url_shortener_api.dto.UrlStatsResponse;
 import com.julian_heinen.url_shortener_api.exception.ShortUrlNotFoundException;
 import com.julian_heinen.url_shortener_api.exception.UrlExpiredException;
@@ -32,21 +33,24 @@ public class UrlShortenerService {
         this.defaultHoursTTL = defaultHoursTTL;
     }
 
-    public String shortenUrl(String longUrl, Integer hoursTTL) {
+    public UrlResponse getShortUrl(String originalUrl, Integer hoursTTL) {
         int ttl = (hoursTTL != null) ? hoursTTL : defaultHoursTTL;
+        LocalDateTime expiresAt = calculateExpiryDate(ttl);
 
-        UrlMapping urlMapping = repository.save(UrlMapping.builder()
-                .originalUrl(longUrl)
-                .expiresAt(calculateExpiryDate(ttl))
-                .build());
+        UrlMapping urlMapping = repository.save(
+                UrlMapping.builder()
+                        .originalUrl(originalUrl)
+                        .expiresAt(expiresAt)
+                        .build());
 
-        String shortCode = Base62Encoder.encode(urlMapping.getId());
+        String shortUrl = createShortUrlFromId(urlMapping.getId());
 
-        return baseUrl + ":" + serverPort + "/" + shortCode;
+        return new UrlResponse(shortUrl, originalUrl, expiresAt);
     }
 
     public String resolveUrl(String shortCode) throws ShortUrlNotFoundException, UrlExpiredException {
         UrlMapping urlMapping = getUrlMappingByShortCode(shortCode);
+
         if (isExpired(urlMapping)) {
             throw new UrlExpiredException(shortCode);
         }
@@ -107,6 +111,13 @@ public class UrlShortenerService {
     /*
      * Hilfsmethoden
      */
+
+    private String createShortUrlFromId(long id) {
+        String shortCode = Base62Encoder.encode(id);
+
+        return baseUrl + ":" + serverPort + "/" + shortCode;
+    }
+
     private UrlMapping getUrlMappingByShortCode(String shortCode) {
         long id = Base62Decoder.decode(shortCode);
 

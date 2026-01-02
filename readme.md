@@ -109,7 +109,7 @@ Die API liefert saubere HTTP-Statuscodes zurück:
 * **410 Gone:** Der Short-Code existiert, ist aber abgelaufen (TTL expired).
 
 ## 🧹 Automatische Bereinigung
-Damit die Datenbank nicht unbegrenzt mit "toten" Einträgen wächst, verfügt die Anwendung über einen integrierten Cleanup-Job.
+Damit die Datenbank nicht unbegrenzt mit "toten" Einträgen wächst, verfügt die Anwendung über einen integrierten **Cleanup-Job.**
 - Dieser läuft im Hintergrund und löscht physisch alle URLs aus der Datenbank, deren Haltbarkeitsdatum (`expiresAt`) überschritten ist.
 - Der Zeitplan ist über die Property `app.cleanup.cron` konfigurierbar. _(Standard: Täglich um 03:00 Uhr nachts)_
 

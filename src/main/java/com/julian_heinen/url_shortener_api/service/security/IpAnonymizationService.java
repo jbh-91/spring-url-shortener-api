@@ -1,5 +1,7 @@
 package com.julian_heinen.url_shortener_api.service.security;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -46,10 +48,9 @@ public class IpAnonymizationService {
     }
 
     private String maskIp(String ip) {
-        // TODO: Saubere IP-Validierung einbauen
-        if (ip.contains(":")) {
+        if (isValidIPv6(ip)) {
             return maskIPv6(ip);
-        } else if (ip.contains(".")) {
+        } else if (isValidIPv4(ip)) {
             return maskIPv4(ip);
         }
         return ip; // Ungültige IP-Adresse
@@ -87,5 +88,27 @@ public class IpAnonymizationService {
             hex.append(String.format("%02x", b));
         }
         return hex.toString();
+    }
+
+    /*
+     * IP Validation Methods
+     */
+
+    private boolean isValidIPv4(String ip) {
+        InetAddress inetAddress = resolveIpAddress(ip);
+        return inetAddress instanceof java.net.Inet4Address;
+    }
+
+    private boolean isValidIPv6(String ip) {
+        InetAddress inetAddress = resolveIpAddress(ip);
+        return inetAddress instanceof java.net.Inet6Address;
+    }
+
+    private InetAddress resolveIpAddress(String ip) {
+        try {
+            return InetAddress.getByName(ip);
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 }

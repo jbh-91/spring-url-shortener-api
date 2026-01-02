@@ -39,6 +39,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class IpAnonymizationService {
 
+    /**
+     * Maskiert die übergebene IP-Adresse und erstellt einen Hash daraus.
+     *
+     * @param rawIp Die rohe IP-Adresse (kann null, leer oder ungültig sein).
+     * @return Einen 8-stelligen Hex-Hash der maskierten IP oder Fallback-Werte
+     *         ({@code "unknown"}, {@code "hash-error"}).
+     */
     public String anonymizeAndHash(String rawIp) {
         if (rawIp == null || rawIp.isEmpty()) {
             return "unknown";
@@ -47,22 +54,52 @@ public class IpAnonymizationService {
         return hashString(maskedIp);
     }
 
+    // --- Maskierungs-Logik ---
+
+    /**
+     * Wählt die passende Maskierungsstrategie basierend auf dem erkannten IP-Typ.
+     * <p>
+     * Prüft mittels {@link #resolveIp(String)}, ob es sich technisch um eine v4
+     * oder v6 Adresse handelt.
+     * </p>
+     *
+     * @param ip Die zu maskierende IP-Adresse.
+     * @return Die maskierte IP oder den gegebenen Parameter {@code "ip"}, wenn der
+     *         String keine gültige IP ist.
+     */
     private String maskIp(String ip) {
         if (isValidIPv6(ip)) {
             return maskIPv6(ip);
         } else if (isValidIPv4(ip)) {
             return maskIPv4(ip);
         }
-        return ip; // Ungültige IP-Adresse
+
+        // Fallback für ungültige Formate, um Exceptions im Hash-Prozess zu vermeiden
+        return ip;
     }
 
+    /**
+     * Maskiert eine <b>IPv4-Adresse,</b> indem das letzte Oktett auf 0 gesetzt
+     * wird.
+     * <br>
+     * Beispiel: {@code 192.168.1.50} -> {@code 192.168.1.0}
+     */
     private String maskIPv4(String ip) {
         // Letztes Oktett auf 0 setzen
         return ip.substring(0, ip.lastIndexOf('.')) + ".0";
     }
 
+    /**
+     * Maskiert eine <b>IPv6-Adresse.</b> Behält nur die ersten 3 Blöcke (ca. 48
+     * Bit) bei.
+     * <br>
+     * Hinweis: Dies ist eine vereinfachte String-Implementierung für
+     * Hashing-Zwecke.
+     */
     private String maskIPv6(String ip) {
-        // Letzte 80 Bits auf 0 setzen
+        // Wir benötigen mindestens 3 Teile (z.B. a:b:c:...), um das Präfix a:b:c zu
+        // bilden.
+        // Andernfalls geben wir eine komplett genullte Adresse zurück.
         String[] parts = ip.split(":");
         if (parts.length > 3) {
             return parts[0] + ":" + parts[1] + ":" + parts[2] + ":0:0:0:0:0";
@@ -70,6 +107,22 @@ public class IpAnonymizationService {
         return "0:0:0:0:0:0:0:0";
     }
 
+    // --- Hashing ---
+
+    /**
+     * Erzeugt einen SHA-256 Hash aus dem Eingabe-String.
+     * <p>
+     * Der resultierende Hash wird in einen Hexadezimal-String umgewandelt und auf
+     * die
+     * ersten 8 Zeichen gekürzt.
+     * </p>
+     *
+     * @param input Der zu hashende String (in der Regel die bereits maskierte
+     *              IP-Adresse).
+     * @return Die ersten 8 Zeichen des Hex-Hashes oder {@code "hash-error"}, falls
+     *         der
+     *         Algorithmus nicht verfügbar ist.
+     */
     private String hashString(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -90,20 +143,32 @@ public class IpAnonymizationService {
         return hex.toString();
     }
 
-    /*
-     * IP Validation Methods
-     */
+    // --- Validierung ---
 
+    /**
+     * Prüft, ob der String technisch als IPv4-Adresse (Instanz von
+     * {@link java.net.Inet4Address}) erkannt wird.
+     */
     private boolean isValidIPv4(String ip) {
         InetAddress inetAddress = resolveIpAddress(ip);
         return inetAddress instanceof java.net.Inet4Address;
     }
 
+    /**
+     * Prüft, ob der String technisch als IPv6-Adresse (Instanz von
+     * {@link java.net.Inet6Address}) erkannt wird.
+     */
     private boolean isValidIPv6(String ip) {
         InetAddress inetAddress = resolveIpAddress(ip);
         return inetAddress instanceof java.net.Inet6Address;
     }
 
+    /**
+     * Versucht, den String in eine {@link InetAddress} umzuwandeln.
+     *
+     * @param ip Der IP-String.
+     * @return Das {@link InetAddress} Objekt oder {@code null} bei Parse-Fehlern.
+     */
     private InetAddress resolveIpAddress(String ip) {
         try {
             return InetAddress.getByName(ip);

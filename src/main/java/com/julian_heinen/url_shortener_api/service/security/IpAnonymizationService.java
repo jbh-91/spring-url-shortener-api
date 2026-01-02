@@ -172,7 +172,7 @@ public class IpAnonymizationService {
     private InetAddress resolveIpAddress(String ip) {
         try {
             return InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
+        } catch (UnknownHostException _) {
             return null;
         }
     }

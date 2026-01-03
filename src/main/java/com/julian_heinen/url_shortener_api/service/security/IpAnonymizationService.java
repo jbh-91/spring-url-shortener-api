@@ -9,41 +9,43 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.stereotype.Component;
 
 /**
- * Service zur datenschutzkonformen Anonymisierung und Pseudonymisierung von
- * IP-Adressen.
+ * Service for privacy-compliant anonymization and pseudonymization of IP
+ * addresses.
  * <p>
- * Dieser Service setzt das Prinzip "Privacy by Design" um, indem IP-Adressen
- * <b>vor</b> dem Hashing-Prozess gekürzt (maskiert) werden. Dies verhindert,
- * dass durch Brute-Force-Angriffe (Rainbow Tables) auf den Hash die
- * ursprüngliche Nutzer-IP wiederhergestellt werden kann (k-Anonymität).
+ * This service implements the "Privacy by Design" principle by masking IP
+ * addresses
+ * <b>before</b> the hashing process. This prevents brute-force attacks (Rainbow
+ * Tables)
+ * on the hash from restoring the original user IP (k-anonymity).
  * </p>
- * *
- * <h3>Verwendete Standards zur Maskierung:</h3>
+ *
+ * <h3>Masking Standards used:</h3>
  * <ul>
- * <li><b>IPv4:</b> Das letzte Oktett (8 Bit) wird auf 0 gesetzt.
+ * <li><b>IPv4:</b> The last octet (8 bits) is set to 0.
  * <br>
- * Beispiel: {@code 192.168.123.50} &rarr; {@code 192.168.123.0}</li>
- * <li><b>IPv6:</b> Die letzten 80 Bits werden auf 0 gesetzt (nur die ersten 48
- * Bit / 3 Blöcke bleiben erhalten).
+ * Example: {@code 192.168.123.50} &rarr; {@code 192.168.123.0}</li>
+ * <li><b>IPv6:</b> The last 80 bits are set to 0 (only the first 48 bits / 3
+ * blocks remain).
  * <br>
- * Dies entspricht dem Industriestandard von Google Analytics und verhindert
- * Rückschlüsse auf einzelne Anschlüsse (/64 Präfixe).
+ * This corresponds to the industry standard of Google Analytics and prevents
+ * tracing back to individual connections (/64 prefixes).
  * <br>
- * Beispiel: {@code 2001:db8:85a3:0:0:8a2e:370:7334} &rarr;
+ * Example: {@code 2001:db8:85a3:0:0:8a2e:370:7334} &rarr;
  * {@code 2001:db8:85a3:0:0:0:0:0}</li>
  * </ul>
- * * @see
- * <a href="https://support.google.com/analytics/answer/2763052?hl=de">Google
- * Analytics IP-Anonymisierung</a>
+ *
+ * @see <a href=
+ *      "https://support.google.com/analytics/answer/2763052?hl=de">Google
+ *      Analytics IP Anonymization</a>
  */
 @Component
 public class IpAnonymizationService {
 
     /**
-     * Maskiert die übergebene IP-Adresse und erstellt einen Hash daraus.
+     * Masks the provided IP address and creates a hash from it.
      *
-     * @param rawIp Die rohe IP-Adresse (kann null, leer oder ungültig sein).
-     * @return Einen 8-stelligen Hex-Hash der maskierten IP oder Fallback-Werte
+     * @param rawIp The raw IP address (can be null, empty, or invalid).
+     * @return An 8-character hex hash of the masked IP or fallback values
      *         ({@code "unknown"}, {@code "hash-error"}).
      */
     public String anonymizeAndHash(String rawIp) {
@@ -54,18 +56,18 @@ public class IpAnonymizationService {
         return hashString(maskedIp);
     }
 
-    // --- Maskierungs-Logik ---
+    // --- Masking Logic ---
 
     /**
-     * Wählt die passende Maskierungsstrategie basierend auf dem erkannten IP-Typ.
+     * Selects the appropriate masking strategy based on the detected IP type.
      * <p>
-     * Prüft mittels {@link #resolveIp(String)}, ob es sich technisch um eine v4
-     * oder v6 Adresse handelt.
+     * Checks via {@link #resolveIpAddress(String)} whether it is technically a v4
+     * or v6 address.
      * </p>
      *
-     * @param ip Die zu maskierende IP-Adresse.
-     * @return Die maskierte IP oder den gegebenen Parameter {@code "ip"}, wenn der
-     *         String keine gültige IP ist.
+     * @param ip The IP address to be masked.
+     * @return The masked IP or the original parameter {@code "ip"} if the
+     *         string is not a valid IP.
      */
     private String maskIp(String ip) {
         if (isValidIPv6(ip)) {
@@ -74,32 +76,29 @@ public class IpAnonymizationService {
             return maskIPv4(ip);
         }
 
-        // Fallback für ungültige Formate, um Exceptions im Hash-Prozess zu vermeiden
+        // Fallback for invalid formats to avoid exceptions during hashing
         return ip;
     }
 
     /**
-     * Maskiert eine <b>IPv4-Adresse,</b> indem das letzte Oktett auf 0 gesetzt
-     * wird.
+     * Masks an <b>IPv4 address</b> by setting the last octet to 0.
      * <br>
-     * Beispiel: {@code 192.168.1.50} -> {@code 192.168.1.0}
+     * Example: {@code 192.168.1.50} -> {@code 192.168.1.0}
      */
     private String maskIPv4(String ip) {
-        // Letztes Oktett auf 0 setzen
+        // Set last octet to 0
         return ip.substring(0, ip.lastIndexOf('.')) + ".0";
     }
 
     /**
-     * Maskiert eine <b>IPv6-Adresse.</b> Behält nur die ersten 3 Blöcke (ca. 48
-     * Bit) bei.
+     * Masks an <b>IPv6 address</b>. Retains only the first 3 blocks (approx. 48
+     * bits).
      * <br>
-     * Hinweis: Dies ist eine vereinfachte String-Implementierung für
-     * Hashing-Zwecke.
+     * Note: This is a simplified string implementation for hashing purposes.
      */
     private String maskIPv6(String ip) {
-        // Wir benötigen mindestens 3 Teile (z.B. a:b:c:...), um das Präfix a:b:c zu
-        // bilden.
-        // Andernfalls geben wir eine komplett genullte Adresse zurück.
+        // At least 3 parts are required (e.g., a:b:c:...) to form the prefix a:b:c.
+        // Otherwise, return a completely zeroed address.
         String[] parts = ip.split(":");
         if (parts.length > 3) {
             return parts[0] + ":" + parts[1] + ":" + parts[2] + ":0:0:0:0:0";
@@ -110,25 +109,22 @@ public class IpAnonymizationService {
     // --- Hashing ---
 
     /**
-     * Erzeugt einen SHA-256 Hash aus dem Eingabe-String.
+     * Generates a SHA-256 hash from the input string.
      * <p>
-     * Der resultierende Hash wird in einen Hexadezimal-String umgewandelt und auf
-     * die
-     * ersten 8 Zeichen gekürzt.
+     * The resulting hash is converted to a hexadecimal string and truncated to the
+     * first 8 characters.
      * </p>
      *
-     * @param input Der zu hashende String (in der Regel die bereits maskierte
-     *              IP-Adresse).
-     * @return Die ersten 8 Zeichen des Hex-Hashes oder {@code "hash-error"}, falls
-     *         der
-     *         Algorithmus nicht verfügbar ist.
+     * @param input The string to hash (usually the already masked IP address).
+     * @return The first 8 characters of the hex hash or {@code "hash-error"} if
+     *         the algorithm is not available.
      */
     private String hashString(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
 
-            // Erste 8 Zeichen des Hashes zurückgeben
+            // Return first 8 characters of the hash
             return bytesToHex(hash).substring(0, 8);
         } catch (NoSuchAlgorithmException _) {
             return "hash-error";
@@ -143,11 +139,11 @@ public class IpAnonymizationService {
         return hex.toString();
     }
 
-    // --- Validierung ---
+    // --- Validation ---
 
     /**
-     * Prüft, ob der String technisch als IPv4-Adresse (Instanz von
-     * {@link java.net.Inet4Address}) erkannt wird.
+     * Checks if the string is technically recognized as an IPv4 address
+     * (Instance of {@link java.net.Inet4Address}).
      */
     private boolean isValidIPv4(String ip) {
         InetAddress inetAddress = resolveIpAddress(ip);
@@ -155,8 +151,8 @@ public class IpAnonymizationService {
     }
 
     /**
-     * Prüft, ob der String technisch als IPv6-Adresse (Instanz von
-     * {@link java.net.Inet6Address}) erkannt wird.
+     * Checks if the string is technically recognized as an IPv6 address
+     * (Instance of {@link java.net.Inet6Address}).
      */
     private boolean isValidIPv6(String ip) {
         InetAddress inetAddress = resolveIpAddress(ip);
@@ -164,10 +160,10 @@ public class IpAnonymizationService {
     }
 
     /**
-     * Versucht, den String in eine {@link InetAddress} umzuwandeln.
+     * Attempts to convert the string into an {@link InetAddress}.
      *
-     * @param ip Der IP-String.
-     * @return Das {@link InetAddress} Objekt oder {@code null} bei Parse-Fehlern.
+     * @param ip The IP string.
+     * @return The {@link InetAddress} object or {@code null} if parsing fails.
      */
     private InetAddress resolveIpAddress(String ip) {
         try {

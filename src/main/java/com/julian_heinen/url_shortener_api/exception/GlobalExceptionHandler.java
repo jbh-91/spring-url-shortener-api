@@ -16,6 +16,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Centralized exception handler for the API.
+ * <p>
+ * This class captures specific exceptions thrown by controllers or services
+ * and maps them to standardized {@link ErrorResponse} objects with appropriate
+ * HTTP status codes.
+ * It also handles logging of security-relevant events (e.g., 404s or expired
+ * access attempts)
+ * with anonymized IP addresses.
+ * </p>
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -26,6 +37,14 @@ public class GlobalExceptionHandler {
         this.ipAnonymizer = ipAnonymizer;
     }
 
+    /**
+     * Handles {@link ConstraintViolationException}, typically thrown when URI
+     * parameters fail validation.
+     *
+     * @param ex      The exception containing validation errors.
+     * @param request The current HTTP request.
+     * @return A standard error response with HTTP 400 (Bad Request).
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(
             ConstraintViolationException ex,
@@ -37,6 +56,16 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    /**
+     * Handles {@link MethodArgumentNotValidException}, thrown when DTO validation
+     * fails (e.g., @Valid).
+     *
+     * @param ex      The exception containing field errors.
+     * @param request The current HTTP request.
+     * @return A standard error response with HTTP 400 (Bad Request) listing
+     *         <b>all</b>
+     *         validation errors.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex,
@@ -52,12 +81,23 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    /**
+     * Handles {@link ShortUrlNotFoundException} when a requested short code does
+     * not exist.
+     * <p>
+     * Logs the occurrence with an anonymized client IP hash for security auditing.
+     * </p>
+     *
+     * @param ex      The exception instance.
+     * @param request The current HTTP request.
+     * @return A standard error response with HTTP 404 (Not Found).
+     */
     @ExceptionHandler(ShortUrlNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleShortUrlNotFoundException(
             ShortUrlNotFoundException ex,
             HttpServletRequest request) {
 
-        // LOGGING: Url und User-Hash (WARN)
+        // Log warning with anonymized user hash
         log.warn("Short URL not found: {}, ClientHash: {}",
                 request.getRequestURL(),
                 getAnonymizedClientIp(request));
@@ -68,12 +108,23 @@ public class GlobalExceptionHandler {
                 request);
     }
 
+    /**
+     * Handles {@link UrlExpiredException} when a short code exists but is no longer
+     * valid.
+     * <p>
+     * Logs the occurrence with an anonymized client IP hash.
+     * </p>
+     *
+     * @param ex      The exception instance.
+     * @param request The current HTTP request.
+     * @return A standard error response with HTTP 410 (Gone).
+     */
     @ExceptionHandler(UrlExpiredException.class)
     public ResponseEntity<ErrorResponse> handleUrlExpiredException(
             UrlExpiredException ex,
             HttpServletRequest request) {
 
-        // LOGGING: Url und User-Hash (WARN)
+        // Log warning with anonymized user hash
         log.warn("Short URL has expired: {}, ClientHash: {}",
                 request.getRequestURL(),
                 getAnonymizedClientIp(request));
@@ -84,8 +135,15 @@ public class GlobalExceptionHandler {
                 request);
     }
 
-    /*
-     * Hilfsmethoden
+    // --- Helper Methods ---
+
+    /**
+     * Helper method to construct a consistent {@link ErrorResponse}.
+     *
+     * @param status  The HTTP status to set.
+     * @param message The user-facing error message.
+     * @param request The original request to extract the path.
+     * @return A generic ResponseEntity containing the ErrorResponse.
      */
     private ResponseEntity<ErrorResponse> buildErrorResponse(
             HttpStatus status,
@@ -101,15 +159,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(errorResponse);
     }
 
+    /**
+     * Extracts and anonymizes the client IP address from the request.
+     * <p>
+     * Checks headers like "X-Forwarded-For" to handle proxy scenarios.
+     * </p>
+     *
+     * @param request The HTTP request.
+     * @return An anonymized hash of the client's IP.
+     */
     private String getAnonymizedClientIp(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
 
-        // Fallback auf RemoteAddr, falls kein Header gesetzt
+        // Fallback to RemoteAddr if header is not present
         if (ipAddress == null || ipAddress.isEmpty()) {
             ipAddress = request.getRemoteAddr();
         }
 
-        // Falls mehrere IPs im Header stehen (Proxy-Chain), nimm die erste
+        // If multiple IPs are present (Proxy Chain), take the first one
         if (ipAddress != null && ipAddress.contains(",")) {
             ipAddress = ipAddress.split(",")[0].trim();
         }

@@ -94,17 +94,17 @@ public class UrlShortenerService {
     }
 
     /**
-     * Resolves a short code to the original URL.
+     * Resolves a short code to the original URL and updates usage statistics.
      * <p>
      * <b>Side Effects:</b>
      * <ul>
-     * <li>Increments the access count for this mapping.</li>
+     * <li>Atomically increments the access count (thread-safe).</li>
      * <li>Updates the {@code lastAccessed} timestamp.</li>
      * </ul>
      * </p>
      *
      * @param shortCode The short code (path variable) to resolve.
-     * @return The original long URL.
+     * @return The original URL.
      * @throws ShortUrlNotFoundException If the code does not exist in the database.
      * @throws UrlExpiredException       If the mapping exists but has expired.
      */
@@ -115,10 +115,9 @@ public class UrlShortenerService {
             throw new UrlExpiredException(shortCode);
         }
 
-        // Update statistics
-        urlMapping.setAccessCount(urlMapping.getAccessCount() + 1);
-        urlMapping.setLastAccessed(LocalDateTime.now());
-        repository.save(urlMapping);
+        // Update statistics: Uses atomic DB update to prevent "Lost Update" race
+        // conditions
+        repository.incrementAccessStats(urlMapping.getId(), LocalDateTime.now());
 
         return urlMapping.getOriginalUrl();
     }
@@ -217,7 +216,7 @@ public class UrlShortenerService {
     /**
      * Checks if a mapping is expired based on the current server time.
      */
-    private Boolean isExpired(UrlMapping urlMapping) {
+    private boolean isExpired(UrlMapping urlMapping) {
         LocalDateTime expiresAt = urlMapping.getExpiresAt();
         if (expiresAt == null) {
             return false;// Never expires

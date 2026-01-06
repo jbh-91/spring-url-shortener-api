@@ -67,12 +67,18 @@ public class UrlShortenerController {
      * triggers a statistical update (access count increment) and validates
      * expiration.
      * </p>
+     * <p>
+     * <b>Note:</b> The path variable is restricted to alphanumeric characters
+     * (regex {@code [a-zA-Z0-9]+}), which equals valid Shortcodes. Requests
+     * containing dots (like "favicon.ico") are matched by static resources
+     * instead.
+     * </p>
      *
-     * @param shortCode The unique identifier for the short URL.
+     * @param shortCode The unique identifier for the short URL (alphanumeric only).
      * @return HTTP 302 (Found) with the {@code Location} header set to the original
      *         URL.
      */
-    @GetMapping("/{shortCode}")
+    @GetMapping("/{shortCode:[a-zA-Z0-9]+}")
     public ResponseEntity<Void> getUrlById(@PathVariable String shortCode) {
         String originalUrl = service.resolveUrl(shortCode);
 
@@ -85,11 +91,11 @@ public class UrlShortenerController {
     /**
      * Retrieves usage statistics for a specific short URL.
      *
-     * @param shortCode The unique identifier for the short URL.
+     * @param shortCode The unique identifier for the short URL (alphanumeric only).
      * @return HTTP 200 (OK) with {@link UrlStatsResponse} containing access counts
      *         and expiration info.
      */
-    @GetMapping("/stats/{shortCode}")
+    @GetMapping("/stats/{shortCode:[a-zA-Z0-9]+}")
     public ResponseEntity<UrlStatsResponse> getStatsById(@PathVariable String shortCode) {
         UrlStatsResponse response = service.getUrlStats(shortCode);
 
@@ -105,10 +111,11 @@ public class UrlShortenerController {
      * short code will result in a 404 Not Found error.
      * </p>
      *
-     * @param shortCode The unique identifier for the short URL to delete.
+     * @param shortCode The unique identifier for the short URL to delete
+     *                  (alphanumeric only).
      * @return HTTP 204 (No Content) upon successful deletion.
      */
-    @DeleteMapping("/{shortCode}")
+    @DeleteMapping("/{shortCode:[a-zA-Z0-9]+}")
     public ResponseEntity<Void> deleteUrlById(@PathVariable String shortCode) {
         service.deleteUrl(shortCode);
 

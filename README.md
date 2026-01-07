@@ -116,10 +116,10 @@ Liefert Metadaten und Zugriffszahlen zu einem Link.
 ```json
 {
     "originalUrl": "https://www.github.com",
-  "accessCount": 42,
-  "lastAccessed": "2026-01-04T12:00:00",
-  "expiresAt": null,
-  "isExpired": false
+    "accessCount": 42,
+    "lastAccessed": "2026-01-04T12:00:00",
+    "expiresAt": null,
+    "isExpired": false
 }
 ```
 

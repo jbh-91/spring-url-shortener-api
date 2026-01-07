@@ -3,7 +3,7 @@
 Eine performante und persistente REST-API zum Kürzen von URLs, entwickelt mit **Java 25** und **Spring Boot 4**.
 Das Projekt nutzt einen **Base62-Algorithmus**, um kurze, url-freundliche Strings zu generieren, und speichert die Zuordnungen dauerhaft in einer dateibasierten H2-Datenbank.
 
-Die Anwendung ist für nutzt atomare Datenbank-Updates für Statistiken und unterstützt **PWA-Features** (App-Icons).
+Die Anwendung nutzt atomare Datenbank-Updates für Statistiken und unterstützt **PWA-Features** (App-Icons).
 
 ## 🚀 Technologien
 

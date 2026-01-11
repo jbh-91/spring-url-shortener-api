@@ -25,17 +25,6 @@ Das Projekt ist funktionsfähig, bietet jedoch Raum für weitere geplante Optimi
 * **Tools:** Lombok
 * **Frontend-Assets:** Webmanifest & Favicons (PWA support)
 
-
-## Technologien
-
-* **Java:** 25.0.1
-* **Framework:** Spring Boot 4.0.1
-* **Build Tool:** Maven
-* **Datenbank:** H2 Database (File-based Persistence)
-* **Validierung:** Hibernate
-* **Tools:** Lombok
-* **Frontend-Assets:** Webmanifest & Favicons (PWA support)
-
 ## Setup & Konfiguration
 
 Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfiguration befindet sich in `src/main/resources/application.properties`.

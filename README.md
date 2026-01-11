@@ -1,21 +1,42 @@
-# 🔗 URL Shortener API
+# URL Shortener API
 
 Eine performante und persistente REST-API zum Kürzen von URLs, entwickelt mit **Java 25** und **Spring Boot 4**.
 Das Projekt nutzt einen **Base62-Algorithmus**, um kurze, url-freundliche Strings zu generieren, und speichert die Zuordnungen dauerhaft in einer dateibasierten H2-Datenbank.
 
 Die Anwendung nutzt atomare Datenbank-Updates für Statistiken und unterstützt **PWA-Features** (App-Icons).
 
-## 🚀 Technologien
 
-* **Java SDK:** 25.0.1
+## Roadmap
+
+Das Projekt ist funktionsfähig, bietet jedoch Raum für weitere geplante Optimierungen:
+
+- [ ] **Produktions-Datenbank:** Aktualisierung der README.md mit Anleitung zur Umstellung der H2-Datenbank auf **PostgreSQL** oder **MySQL**.
+- [ ] **Speicher-Optimierung:** Implementierung einer **Deduplizierung**. Es soll verhindert werden, dass identische URLs mehrfach gespeichert werden.
+- [ ] **Performance-Optimierung Cleanup:** Umstellung des Bereinigungs-Jobs auf **Batch-Processing ("Slicing")**. Statt alle abgelaufenen Einträge in einer riesigen Transaktion zu löschen (Gefahr von Table Locks), sollen diese häppchenweise entfernt werden.
+- [ ] **Testabdeckung:** Implementierung von **Unit- und Integration-Tests** (JUnit 5, Mockito, Spring Boot Test), um die Business-Logik und API-Endpunkte automatisiert abzusichern.
+
+## Technologien
+
+* **Java:** 25.0.1
 * **Framework:** Spring Boot 4.0.1
 * **Build Tool:** Maven
 * **Datenbank:** H2 Database (File-based Persistence)
-* **Validierung:** Hibernate Validator
+* **Validierung:** Hibernate
 * **Tools:** Lombok
 * **Frontend-Assets:** Webmanifest & Favicons (PWA support)
 
-## ⚙️ Setup & Konfiguration
+
+## Technologien
+
+* **Java:** 25.0.1
+* **Framework:** Spring Boot 4.0.1
+* **Build Tool:** Maven
+* **Datenbank:** H2 Database (File-based Persistence)
+* **Validierung:** Hibernate
+* **Tools:** Lombok
+* **Frontend-Assets:** Webmanifest & Favicons (PWA support)
+
+## Setup & Konfiguration
 
 Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfiguration befindet sich in `src/main/resources/application.properties`.
 
@@ -31,7 +52,7 @@ Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfigu
 | `app.default-ttl-hours` | `0` | Die Default TTL für die Erstellung der Short-URLs in Stunden. _(0=unendlich)_ |
 | `app.cleanup.cron` | `0 0 3 * * *` | Cron-Ausdruck für den automatischen Bereinigungs-Job abgelaufener URLs. (_Standard: Täglich 03:00 Uhr)_ |
 
-## 🛠️ Installation & Start
+## Installation & Start
 
 1.  **Repository klonen:**
     ```bash
@@ -135,12 +156,12 @@ Entfernt eine Verknüpfung manuell aus der Datenbank.
 * **204 No Content**
 ---
 
-## 🧹 Automatische Bereinigung
+## Automatische Bereinigung
 Damit die Datenbank nicht unbegrenzt mit "toten" Einträgen wächst, verfügt die Anwendung über einen integrierten **Cleanup-Job.**
 - Dieser läuft im Hintergrund und löscht alle URLs aus der Datenbank, deren Haltbarkeitsdatum (`expiresAt`) überschritten ist.
 - Der Zeitplan ist über die Property `app.cleanup.cron` konfigurierbar. _(Standard: Täglich um 03:00 Uhr nachts)_
 
-## 🗄️ Datenbank-Zugriff (H2 Console)
+## Datenbank-Zugriff (H2 Console)
 
 Um direkt in die Datenbank zu schauen, ist die H2-Konsole aktiviert.
 

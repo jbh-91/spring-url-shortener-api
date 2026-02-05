@@ -1,6 +1,10 @@
 package com.julian_heinen.url_shortener_api.util;
 
-public class Base62Encoder {
+public final class Base62Encoder {
+
+    private Base62Encoder() {
+        // Private constructor to prevent instantiation
+    }
 
     private static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int BASE = ALPHABET.length();

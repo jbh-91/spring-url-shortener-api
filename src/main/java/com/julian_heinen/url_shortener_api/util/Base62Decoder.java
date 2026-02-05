@@ -1,6 +1,10 @@
 package com.julian_heinen.url_shortener_api.util;
 
-public class Base62Decoder {
+public final class Base62Decoder {
+
+    private Base62Decoder() {
+        // Private constructor to prevent instantiation
+    }
 
     private static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 

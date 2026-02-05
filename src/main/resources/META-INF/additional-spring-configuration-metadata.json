@@ -1,0 +1,20 @@
+{"properties": [
+  {
+    "name": "app.baseurl",
+    "type": "java.lang.String",
+    "defaultValue": "http://localhost",
+    "description": "Baseurl for the application (e.g., http://localhost or https://mydomain.com). This is used for generating the shortened URLs."
+  },
+  {
+    "name": "app.defaultHoursTTL",
+    "type": "java.lang.Integer",
+    "defaultValue": 0,
+    "description": "Default Time-To-Live for shortened URLs in hours (0 = infinite)"
+  },
+  {
+    "name": "app.cleanup.cron",
+    "type": "java.lang.String",
+    "defaultValue": "0 0 3 * * *",
+    "description": "Cleanup job cron expression. Cron-Syntax: 'Seconds Minutes Hours Day-of-Month Month Day-of-Week'. Example: '0 0 3 * * *' equals: daily at 3 AM"
+  }
+]}

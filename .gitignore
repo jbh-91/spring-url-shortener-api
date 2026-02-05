@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Environment Files ###
+env.properties
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,7 +34,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
 
 ### DataBase ###
 data/

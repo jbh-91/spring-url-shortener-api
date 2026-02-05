@@ -27,15 +27,15 @@ Das Projekt ist funktionsfähig, bietet jedoch Raum für weitere geplante Optimi
 
 ## Setup & Konfiguration
 
-Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfiguration befindet sich in `src/main/resources/application.properties`.
+Die Anwendung ist so konfiguriert, dass sie mit minimalem Setup lauffähig ist. Die Konfiguration befindet sich in `src/main/resources/application.properties`.
 
 ### Wichtige Einstellungen
 | Property | Wert (Standard) | Beschreibung |
 | :--- | :--- | :--- |
 | `server.port` | `8080` | Der Port, auf dem die API läuft. |
-| `spring.datasource.url` | `jdbc:h2:file:./data/shortener` | Der Pfad, wo die Datenbankdatei erstellt und verwendet werden soll. |
-| `spring.datasource.username` | `username` | Benutzername für die H2 Datenbank und Adminkonsole. |
-| `spring.datasource.password` | `password` | Passwort für die H2 Datenbank und Adminkonsole. |
+| `spring.datasource.url` | `jdbc:h2:file: ./data/${DB_DATABASE}` | Der Pfad, wo die Datenbankdatei erstellt und verwendet werden soll sowie der Datenbankname |
+| `spring.datasource.username` | `=${DB_USER}` | Benutzername für die H2 Datenbank und Adminkonsole. Konfiguriert über die Umgebungsvariablen oder `env.properties` |
+| `spring.datasource.password` | `${DB_PASSWORD}` | Passwort für die H2 Datenbank und Adminkonsole. Konfiguriert über die Umgebungsvariablen oder `env.properties` |
 | `spring.jpa.hibernate.ddl-auto` | `update` | Erstellt das Datenbankschema bei Änderungen automatisch neu, behält die Daten aber bei. |
 | `app.baseurl` | `http://localhost` | Die Basis-URL, die dem Short-Code vorangestellt wird. _(z.B. http://mydomain.de)_ |
 | `app.default-ttl-hours` | `0` | Die Default TTL für die Erstellung der Short-URLs in Stunden. _(0=unendlich)_ |
@@ -43,11 +43,15 @@ Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfigu
 
 ## Installation & Start
 
-1.  **Repository klonen:**
+1. **Repository klonen:**
     ```bash
     git clone "https://github.com/jbh-91/spring-url-shortener-api"
     ```
-2.  **Bauen und Starten (via Maven-Wrapper):**
+2. **Konfiguration der Umgebungsvariablen (Lokal)**
+    * Die Datei `env.properties.example` im Root-Verzeichnis in `env.properties` kopieren oder umbenennen.
+    * Die angegebenen Umgebungsvariablen anpassen
+    * Alternativ können die angegebenen Variablen über Umgebungsvariablen konfiguriert werden.
+3. **Bauen und Starten (via Maven-Wrapper):**
     ```bash
     .\mvnw spring-boot:run
     ```
@@ -55,7 +59,7 @@ Die Anwendung ist so konfiguriert, dass sie "Out of the Box" läuft. Die Konfigu
 Nach dem Start ist die API unter `http://localhost:8080` erreichbar.
 Die Datenbank-Datei wird automatisch im Ordner `./data/` angelegt.
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### 1. URL kürzen
 Erstellt einen neuen Short-Link für eine lange URL.
